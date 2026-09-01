@@ -2,6 +2,8 @@ import type {
   ActionItem, AttentionItem, Decision, FunnelStage,
   JobRequirement, MarketRow, Priority,
 } from "@/types";
+import { CANDIDATES } from "@/lib/data/candidates";
+import { KNOWLEDGE } from "@/lib/rag/knowledge";
 
 /**
  * ILLUSTRATIVE PROTOTYPE DATA.
@@ -27,8 +29,8 @@ export const REQUIREMENTS: JobRequirement[] = [
 ];
 
 export const KPIS = [
-  { key:"active_requirements", label:"Active Requirements", value:34, delta:"+6 WoW", tone:"neutral" as const, sub:"12 in this demo dataset" },
-  { key:"pipeline", label:"Candidates in Pipeline", value:2481, delta:"+184 WoW", tone:"positive" as const, sub:"27 profiles seeded locally" },
+  { key:"active_requirements", label:"Active Requirements", value:34, delta:"+6 WoW", tone:"neutral" as const, sub:`${REQUIREMENTS.length} in this demo dataset` },
+  { key:"pipeline", label:"Candidates in Pipeline", value:2481, delta:"+184 WoW", tone:"positive" as const, sub:`${CANDIDATES.length} profiles seeded locally` },
   { key:"placements", label:"Placements This Month", value:128, delta:"-9 vs last month", tone:"negative" as const, sub:"Target 145" },
   { key:"at_risk", label:"At-Risk Projects", value:5, delta:"+2 WoW", tone:"negative" as const, sub:"Documentation-driven" },
 ];
@@ -167,7 +169,7 @@ export const SKILL_PIPELINE = {
 };
 
 export const SYSTEM_COUNTS = {
-  candidates: 27,
+  candidates: CANDIDATES.length,
   requirements: REQUIREMENTS.length,
-  knowledgeDocs: 6,
+  knowledgeDocs: KNOWLEDGE.length,
 };

@@ -4,3 +4,7 @@ node_modules
 .env.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Local secrets — never commit
+api/api_key.txt
+*.key
