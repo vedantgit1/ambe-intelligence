@@ -77,7 +77,11 @@ export async function generateJson<T>(
         config: {
           systemInstruction: o.system,
           temperature: o.temperature ?? 0.3,
-          maxOutputTokens: o.maxOutputTokens ?? 4096,
+          // Gemini 2.5 spends thinking tokens out of the same budget. A budget
+          // sized only for the JSON returns an empty body and a false fallback,
+          // so cap thinking and leave real headroom for the answer.
+          maxOutputTokens: Math.max(o.maxOutputTokens ?? 4096, 8192),
+          thinkingConfig: { thinkingBudget: 1024 },
           responseMimeType: "application/json",
         },
       }),
