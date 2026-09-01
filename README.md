@@ -217,8 +217,8 @@ to labelled demo intelligence.
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
 | `GEMINI_API_KEY` | no | — | Enables live model calls. Absent ⇒ demo intelligence. |
-| `GEMINI_MODEL` | no | `gemini-2.5-flash` | Reasoning model: briefs, strategy, evaluation. |
-| `GEMINI_FAST_MODEL` | no | `gemini-2.5-flash-lite` | Cheap tier: extraction, repetitive tasks. |
+| `GEMINI_MODEL` | no | `gemini-3.7-flash` | Reasoning model: briefs, strategy, evaluation. |
+| `GEMINI_FAST_MODEL` | no | `gemini-3.5-flash-lite` | Cheap tier: extraction, repetitive tasks. |
 | `GEMINI_EMBEDDING_MODEL` | no | `gemini-embedding-001` | Retrieval embeddings. |
 | `PINECONE_API_KEY` | no | — | Optional. With `PINECONE_INDEX`, selects the managed adapter. |
 | `PINECONE_INDEX` | no | — | Pinecone index host. |

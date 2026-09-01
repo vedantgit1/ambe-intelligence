@@ -10,9 +10,9 @@ const KEY = process.env.GEMINI_API_KEY?.trim();
 
 export const MODELS = {
   /** Complex reasoning: briefs, strategy, candidate evaluation. */
-  reasoning: process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash",
+  reasoning: process.env.GEMINI_MODEL?.trim() || "gemini-3.7-flash",
   /** Cheap/fast: repetitive extraction and short summaries. */
-  fast: process.env.GEMINI_FAST_MODEL?.trim() || "gemini-2.5-flash-lite",
+  fast: process.env.GEMINI_FAST_MODEL?.trim() || "gemini-3.5-flash-lite",
   /** Retrieval embeddings. */
   embedding: process.env.GEMINI_EMBEDDING_MODEL?.trim() || "gemini-embedding-001",
 };
@@ -77,7 +77,7 @@ export async function generateJson<T>(
         config: {
           systemInstruction: o.system,
           temperature: o.temperature ?? 0.3,
-          // Gemini 2.5 spends thinking tokens out of the same budget. A budget
+          // Thinking models spend reasoning tokens from this budget. A budget
           // sized only for the JSON returns an empty body and a false fallback,
           // so cap thinking and leave real headroom for the answer.
           maxOutputTokens: Math.max(o.maxOutputTokens ?? 4096, 8192),
