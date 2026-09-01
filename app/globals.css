@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #070809;
+  --color-base: #0b0d0f;
+  --color-surface: #111417;
+  --color-surface-2: #171b1f;
+  --color-line: #22272c;
+  --color-line-soft: #191d21;
+  --color-fg: #eef1f4;
+  --color-muted: #93a0ab;
+  --color-faint: #63707b;
+  --color-accent: #e2ac4f;
+  --color-accent-soft: #3a2c14;
+  --color-teal: #4fc3ae;
+  --color-danger: #e0705f;
+  --color-warn: #dfa63f;
+  --color-ok: #5fc38a;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-xl2: 18px;
+}
+
+:root { color-scheme: dark; }
+
+html, body {
+  background: var(--color-base);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+}
+
+/* Background: soft grid + radial wash + fine noise. Set once, on the shell. */
+.app-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(900px 500px at 78% -8%, rgba(226,172,79,0.07), transparent 60%),
+    radial-gradient(700px 420px at 8% 4%, rgba(79,195,174,0.05), transparent 62%),
+    linear-gradient(to right, rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 56px 56px, 56px 56px;
+}
+.app-bg::after {
+  content: ""; position: absolute; inset: 0; opacity: 0.13;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+.card {
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-xl2);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 18px 40px -28px rgba(0,0,0,0.9);
+  transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+.card-hover:hover {
+  border-color: var(--color-line);
+  transform: translateY(-2px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 26px 50px -28px rgba(0,0,0,0.95);
+}
+
+.hairline { border-color: var(--color-line-soft); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border-radius: 11px; font-size: 13px; font-weight: 500;
+  padding: .5rem .85rem; border: 1px solid var(--color-line);
+  color: var(--color-fg); background: var(--color-surface-2);
+  transition: all .18s ease; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line)); background: #1c2126; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary {
+  background: linear-gradient(180deg, #eab959, #d79f3e);
+  border-color: #b6832d; color: #21170a; font-weight: 600;
+}
+.btn-primary:hover { background: linear-gradient(180deg, #f0c368, #e0a949); border-color: #caa04a; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--color-muted); }
+.btn-ghost:hover { background: var(--color-surface-2); color: var(--color-fg); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: 11px; padding: .17rem .5rem; border-radius: 7px;
+  border: 1px solid var(--color-line); color: var(--color-muted);
+  background: rgba(255,255,255,0.02);
+}
+
+.label { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-faint); font-weight: 500; }
+
+.prose-ai p { margin-bottom: .6rem; line-height: 1.65; }
+.prose-ai strong { color: var(--color-fg); font-weight: 600; }
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.skeleton { position: relative; overflow: hidden; background: var(--color-surface-2); border-radius: 8px; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.045), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .45s cubic-bezier(.2,.7,.3,1) both; }
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #262c32; border-radius: 8px; border: 2px solid var(--color-base); }
+::-webkit-scrollbar-thumb:hover { background: #333b43; }
+
+.scroll-thin { scrollbar-width: thin; }
