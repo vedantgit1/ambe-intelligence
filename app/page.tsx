@@ -1,315 +1,276 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis,
-} from "recharts";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Brain, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
 import {
-  AiThinking, Badge, Card, Counter, DemoTag, ErrorNote, List, PageHead, SectionHead, SourceTag,
-} from "@/components/ui/primitives";
-import { renderMarkdownish } from "@/components/Copilot";
-import { ATTENTION, CLIENT_DEMAND, KPIS, THROUGHPUT } from "@/lib/data/business";
-import { funnelConversions } from "@/lib/analytics/metrics";
-import type { ExecutiveBrief } from "@/lib/ai/schema";
+  ArrowRight, Brain, Compass, Database, GitBranch, GraduationCap,
+  Layers, ScrollText, ShieldCheck, Sparkles, Target, Users,
+} from "lucide-react";
 
-const CONV = funnelConversions().filter((s) =>
-  ["Requirements", "Qualified", "Shortlisted", "Selected", "Deployed"].includes(s.stage),
-);
+const CHAIN = [
+  "MARKET DEMAND", "SKILL GAP", "TRAINING", "ASSESSMENT",
+  "CERTIFICATION", "MATCH", "EMPLOYMENT",
+];
 
-export default function CommandCenter() {
-  const [brief, setBrief] = useState<{ data: ExecutiveBrief; source: "gemini" | "demo"; note?: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const LOOP = ["DATA", "INTELLIGENCE", "DECISION", "ACTION", "MEASUREMENT"];
 
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("run") === "brief") generate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+const CAPABILITIES = [
+  { icon: Users, title: "AI Talent Match", body: "Semantic retrieval over the talent pool, then a transparent weighted score with explicit eligibility gates. Evidence, gaps, training and interview questions for every candidate.", href: "/talent", tag: "Retrieval + rules + reasoning" },
+  { icon: GraduationCap, title: "Skill Intelligence", body: "Demand becomes trained, assessed, certified, deployable supply — with the conversion rate of every link measured, and the weakest one named.", href: "/skills", tag: "Skill-to-employment" },
+  { icon: Compass, title: "Strategy Room", body: "Leadership priorities turned into sequenced initiatives with owners, dependencies, KPI targets, risks and the next seven days of work.", href: "/strategy", tag: "Execution planning" },
+  { icon: Brain, title: "Executive Brief", body: "What changed, why it matters, the binding constraint, the biggest opportunity, and the three actions leadership should take today.", href: "/command-center?run=brief", tag: "Daily intelligence" },
+  { icon: GitBranch, title: "Decision Support", body: "Options with real pros and cons, reversibility, confidence, and what would change the recommendation — logged so any decision can be reconstructed.", href: "/decisions", tag: "Decision log" },
+  { icon: Target, title: "Funnel Diagnosis", body: "Computed anomaly detection across nine stages, then a grounded explanation of the cause and the interventions ranked by effort.", href: "/analytics", tag: "Operational analytics" },
+];
 
-  async function generate() {
-    setLoading(true); setError(""); setBrief(null);
-    try {
-      const r = await fetch("/api/brief", { method: "POST" });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error ?? "Request failed");
-      setBrief(j);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not generate the brief");
-    } finally { setLoading(false); }
-  }
+const ARCHITECTURE = [
+  { icon: Database, k: "Retrieval", v: "Embeddings and vector similarity find who is plausibly relevant. Written against a VectorStore interface, not a vendor." },
+  { icon: Brain, k: "Reasoning", v: "Gemini evaluates the retrieved evidence and returns schema-validated JSON. Malformed output never reaches the screen." },
+  { icon: ShieldCheck, k: "Deterministic rules", v: "Hard gates and a weighted score a recruiter can audit by hand. The model explains the number — it never produces it." },
+];
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+const ease = [0.2, 0.7, 0.3, 1] as const;
 
+export default function Landing() {
   return (
-    <div>
-      <PageHead
-        title={`${greeting}, Vedant`}
-        sub="Executive workforce intelligence"
-        right={
-          <div className="flex items-center gap-2">
-            <Badge tone="neutral">Data → Intelligence → Decision → Action → Measurement</Badge>
-            <button onClick={generate} disabled={loading} className="btn btn-primary">
-              <Sparkles size={14} /> Generate Today&apos;s Brief
-            </button>
+    <div className="-mx-5 md:-mx-7 -my-6">
+      {/* Hero */}
+      <section className="relative px-6 md:px-12 pt-16 pb-20 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(760px 380px at 22% 0%, rgba(226,172,79,0.10), transparent 65%)" }} />
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}
+          className="relative max-w-4xl">
+          <div className="flex flex-wrap items-center gap-2 mb-7">
+            <span className="chip !text-accent !border-[#4a3a1c] bg-[rgba(226,172,79,0.08)]">
+              <Sparkles size={11} /> Strategic AI Prototype
+            </span>
+            <span className="chip">Concept Demonstration</span>
+            <span className="chip">Not an official Ambe International product</span>
           </div>
-        }
-      />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-        {KPIS.map((k, i) => (
-          <Card key={k.key} hover delay={i * 0.05} className="p-4">
-            <div className="flex items-start justify-between gap-2">
-              <p className="label">{k.label}</p>
-              {k.tone === "positive" ? <TrendingUp size={14} className="text-ok" /> : k.tone === "negative" ? <TrendingDown size={14} className="text-danger" /> : null}
-            </div>
-            <div className="mt-2 text-[30px] font-semibold tracking-[-0.03em] leading-none">
-              <Counter value={k.value} />
-            </div>
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <span className={`text-[11.5px] ${k.tone === "positive" ? "text-ok" : k.tone === "negative" ? "text-danger" : "text-muted"}`}>{k.delta}</span>
-              <DemoTag>{k.sub}</DemoTag>
-            </div>
-          </Card>
-        ))}
-      </div>
+          <h1 className="text-[clamp(34px,6.4vw,68px)] font-semibold leading-[1.02] tracking-[-0.035em]">
+            AMBE
+            <span className="bg-gradient-to-r from-[#f0c368] via-[#e2ac4f] to-[#c68f33] bg-clip-text text-transparent"> INTELLIGENCE</span>
+          </h1>
 
-      <div className="grid lg:grid-cols-3 gap-3.5 mb-6">
-        <Card className="p-5 lg:col-span-2" delay={0.08}>
-          <SectionHead title="Executive pulse" sub="Recruitment throughput over the last seven weeks" right={<DemoTag />} />
-          <div className="h-[210px] -ml-3">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={THROUGHPUT}>
-                <defs>
-                  <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#e2ac4f" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#e2ac4f" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4fc3ae" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#4fc3ae" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="#1b2025" vertical={false} />
-                <XAxis dataKey="week" stroke="#63707b" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#63707b" fontSize={11} tickLine={false} axisLine={false} width={38} />
-                <Tooltip contentStyle={TOOLTIP} />
-                <Area type="monotone" dataKey="screened" stroke="#e2ac4f" strokeWidth={2} fill="url(#gA)" name="Screened" />
-                <Area type="monotone" dataKey="shortlisted" stroke="#4fc3ae" strokeWidth={2} fill="url(#gB)" name="Shortlisted" />
-                <Area type="monotone" dataKey="deployed" stroke="#93a0ab" strokeWidth={1.6} fill="transparent" name="Deployed" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <p className="mt-4 text-[clamp(16px,2.1vw,22px)] text-muted leading-snug max-w-2xl">
+            AI Workforce &amp; Executive Command Center
+          </p>
+
+          <p className="mt-6 text-[15px] md:text-[16.5px] text-faint leading-relaxed max-w-2xl">
+            From skills to opportunity. From decisions to execution. An intelligence layer for workforce
+            operations and executive decision-making — not another chatbot bolted onto recruitment.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center gap-2.5">
+            <Link href="/command-center" className="btn btn-primary !px-4 !py-2.5 !text-[13.5px]">
+              Enter Command Center <ArrowRight size={15} />
+            </Link>
+            <Link href="/talent" className="btn !px-4 !py-2.5 !text-[13.5px]">
+              <Users size={15} /> Run a live talent match
+            </Link>
+            <span className="text-[11.5px] text-faint ml-1 hidden md:inline">or press ⌘K</span>
           </div>
-          <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2">
-            {CONV.map((s) => (
-              <div key={s.stage} className="rounded-[11px] border border-line-soft bg-surface px-3 py-2">
-                <p className="text-[10.5px] text-faint truncate">{s.stage}</p>
-                <p className="text-[15px] font-semibold mt-0.5">{s.count.toLocaleString()}</p>
-                <p className={`text-[10.5px] mt-0.5 ${s.conversion < 55 ? "text-danger" : "text-muted"}`}>
-                  {s.stage === "Requirements" ? "entry" : `${s.conversion}% conv.`}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Card>
+        </motion.div>
 
-        <Card className="p-5" delay={0.12}>
-          <SectionHead title="Client demand" sub="Open positions, week-over-week" right={<DemoTag />} />
-          <div className="h-[210px] -ml-3">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={CLIENT_DEMAND} layout="vertical" margin={{ left: 8 }}>
-                <CartesianGrid stroke="#1b2025" horizontal={false} />
-                <XAxis type="number" stroke="#63707b" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis type="category" dataKey="client" width={92} stroke="#63707b" fontSize={9.5} tickLine={false} axisLine={false}
-                  tickFormatter={(v: string) => v.split(" ")[0]} />
-                <Tooltip contentStyle={TOOLTIP} />
-                <Bar dataKey="open" radius={[0, 5, 5, 0]} name="Open positions">
-                  {CLIENT_DEMAND.map((c, i) => <Cell key={i} fill={c.wow > 20 ? "#e2ac4f" : "#3c4750"} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 space-y-1">
-            {CLIENT_DEMAND.map((c) => (
-              <div key={c.client} className="flex items-center justify-between text-[11.5px]">
-                <span className="text-muted truncate">{c.client}</span>
-                <span className={c.wow > 0 ? "text-ok" : "text-danger"}>{c.wow > 0 ? "+" : ""}{c.wow}%</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid lg:grid-cols-5 gap-3.5">
-        <div className="lg:col-span-2">
-          <SectionHead title="What needs my attention" sub="Prioritised by severity, owner and deadline" />
-          <div className="space-y-2.5">
-            {ATTENTION.map((a, i) => (
-              <Card key={a.id} hover delay={0.05 * i} className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-[13.5px] font-medium">{a.title}</p>
-                  <Badge tone={a.severity === "high" ? "danger" : a.severity === "medium" ? "warn" : "neutral"}>{a.severity}</Badge>
-                </div>
-                <p className="text-[12.5px] text-muted mt-1.5 leading-relaxed">{a.detail}</p>
-                <div className="mt-3 rounded-[10px] border border-line-soft bg-[rgba(226,172,79,0.045)] px-3 py-2">
-                  <p className="label mb-1">Recommended action</p>
-                  <p className="text-[12.5px] text-fg leading-relaxed">{a.recommendedAction}</p>
-                </div>
-                <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                  <Badge>{a.owner}</Badge>
-                  <Badge>{a.status}</Badge>
-                  <Badge tone="warn">due {a.deadline}</Badge>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className="lg:col-span-3">
-          <SectionHead title="AI Executive Brief" sub="Gemini reasoning over the seeded operating picture" right={<SourceTag source={brief?.source} note={brief?.note} />} />
-          <Card className="p-5 min-h-[420px]" delay={0.1}>
-            {!brief && !loading && !error && (
-              <div className="h-full flex flex-col items-center justify-center text-center py-16">
-                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                  className="grid place-items-center w-12 h-12 rounded-2xl border border-line bg-surface-2 mb-4">
-                  <Brain size={20} className="text-accent" />
-                </motion.div>
-                <p className="text-[14px] font-medium">Generate the executive brief</p>
-                <p className="text-[12.5px] text-faint mt-1.5 max-w-md leading-relaxed">
-                  Reads the funnel, client demand, market and strategy data, then returns what changed, why it matters,
-                  the biggest risk and opportunity, and the three actions leadership should take today.
-                </p>
-                <button onClick={generate} className="btn btn-primary mt-5"><Sparkles size={14} /> Generate Brief</button>
-              </div>
-            )}
-
-            {loading && (
-              <div className="py-6">
-                <AiThinking steps={["Reading operating data…", "Comparing week-over-week movement…", "Isolating the binding constraint…", "Weighing risks and opportunities…", "Selecting the top three actions…"]} />
-              </div>
-            )}
-
-            {error && <ErrorNote message={error} />}
-
-            {brief && <BriefView b={brief.data} onRegenerate={generate} />}
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const TOOLTIP = {
-  background: "#111417", border: "1px solid #22272c", borderRadius: 12,
-  fontSize: 12, color: "#eef1f4", boxShadow: "0 18px 40px -22px rgba(0,0,0,.9)",
-} as const;
-
-function BriefView({ b, onRegenerate }: { b: ExecutiveBrief; onRegenerate: () => void }) {
-  return (
-    <div className="space-y-5 rise">
-      <div className="grid sm:grid-cols-3 gap-2.5">
-        {[["Business pulse", b.businessPulse], ["Recruitment pulse", b.recruitmentPulse], ["Client pulse", b.clientPulse]].map(([k, v]) => (
-          <div key={k} className="rounded-[12px] border border-line-soft bg-surface px-3 py-3">
-            <p className="label mb-1.5">{k}</p>
-            <p className="text-[12px] text-muted leading-relaxed">{v}</p>
-          </div>
-        ))}
-      </div>
-
-      {b.whatChanged.length > 0 && (
-        <div>
-          <p className="label mb-2">What changed</p>
-          <List items={b.whatChanged} />
-        </div>
-      )}
-
-      {b.whyItMatters && (
-        <div className="rounded-[12px] border border-line-soft bg-[rgba(79,195,174,0.05)] px-3.5 py-3">
-          <p className="label mb-1.5">Why it matters</p>
-          <div className="text-[12.5px] text-muted leading-relaxed prose-ai">{renderMarkdownish(b.whyItMatters)}</div>
-        </div>
-      )}
-
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <p className="label mb-2">Operational bottlenecks</p>
-          <div className="space-y-2">
-            {b.bottlenecks.map((x, i) => (
-              <div key={i} className="rounded-[11px] border border-line-soft bg-surface px-3 py-2.5">
-                <p className="text-[12.5px] font-medium">{x.area}</p>
-                <p className="text-[11.5px] text-muted mt-1 leading-relaxed">{x.detail}</p>
-                <p className="text-[11px] text-warn mt-1">{x.impact}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="label mb-2">Strategic risks</p>
-          <div className="space-y-2">
-            {b.risks.map((x, i) => (
-              <div key={i} className="rounded-[11px] border border-line-soft bg-surface px-3 py-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[12.5px]">{x.risk}</p>
-                  <Badge tone={x.severity === "high" ? "danger" : x.severity === "medium" ? "warn" : "neutral"}>{x.severity}</Badge>
-                </div>
-                <p className="text-[11.5px] text-muted mt-1 leading-relaxed">{x.mitigation}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {b.opportunities.length > 0 && (
-        <div>
-          <p className="label mb-2">Opportunities</p>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {b.opportunities.map((o, i) => (
-              <div key={i} className="rounded-[11px] border border-line-soft bg-surface px-3 py-2.5">
-                <p className="text-[12.5px] font-medium">{o.opportunity}</p>
-                <p className="text-[11.5px] text-muted mt-1">{o.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {b.decisionsRequired.length > 0 && (
-        <div>
-          <p className="label mb-2">Decisions required</p>
-          <div className="space-y-1.5">
-            {b.decisionsRequired.map((d, i) => (
-              <div key={i} className="flex items-center gap-3 text-[12.5px]">
-                <ArrowRight size={13} className="text-accent shrink-0" />
-                <span className="text-fg">{d.decision}</span>
-                <span className="ml-auto text-[11px] text-faint whitespace-nowrap">{d.owner} · {d.by}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-[13px] border border-[#4a3a1c] bg-[rgba(226,172,79,0.06)] p-4">
-        <p className="label mb-2.5">Top 3 actions for leadership today</p>
-        <div className="space-y-2.5">
-          {b.topThreeActions.map((a, i) => (
-            <div key={i} className="flex gap-3">
-              <span className="text-[13px] font-semibold text-accent">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <p className="text-[13px] text-fg">{a.action}</p>
-                <p className="text-[11.5px] text-muted mt-0.5">{a.why}</p>
-                <p className="text-[11px] text-faint mt-0.5">{a.owner} · {a.by}</p>
-              </div>
+        {/* The loop */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35, duration: 0.7 }}
+          className="relative mt-16 flex flex-wrap items-center gap-x-3 gap-y-2">
+          {LOOP.map((s, i) => (
+            <div key={s} className="flex items-center gap-3">
+              <motion.span
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + i * 0.09, ease }}
+                className="text-[10.5px] tracking-[0.16em] text-faint hover:text-accent transition-colors"
+              >
+                {s}
+              </motion.span>
+              {i < LOOP.length - 1 && <span className="text-[10px] text-[#2b3238]">──</span>}
             </div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </section>
 
-      <div className="flex items-center justify-between pt-1">
-        <span className="text-[10.5px] text-faint">Generated from illustrative prototype data · humans make the decisions</span>
-        <button onClick={onRegenerate} className="btn btn-ghost !text-[12px]">Regenerate</button>
-      </div>
+      {/* Two layers */}
+      <section className="px-6 md:px-12 py-14 border-t border-line-soft">
+        <div className="grid lg:grid-cols-2 gap-3.5">
+          {[
+            {
+              n: "01", label: "Layer one", title: "AI Recruitment Intelligence",
+              body: "Help recruiters find the right people faster — with a score they can defend to a client, a candidate, and a regulator.",
+              steps: ["Requirement analysis", "Skill extraction", "Candidate retrieval", "Semantic matching", "Deterministic scoring", "Gap analysis", "Recruiter decision support"],
+              href: "/talent", cta: "Open Talent Match",
+            },
+            {
+              n: "02", label: "Layer two", title: "Chief of Staff Command Center",
+              body: "Help leadership move from what is happening to who owns it and whether it got done — in one continuous loop.",
+              steps: ["What is happening?", "Why is it happening?", "What matters?", "What should we do?", "Who owns it?", "By when?", "Did it get done?"],
+              href: "/command-center", cta: "Open Command Center",
+            },
+          ].map((c, i) => (
+            <motion.div
+              key={c.n}
+              initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease }}
+              className="card card-hover p-6 md:p-7 flex flex-col"
+            >
+              <div className="flex items-baseline gap-3">
+                <span className="text-[30px] font-semibold text-[#2b3238] leading-none">{c.n}</span>
+                <span className="label">{c.label}</span>
+              </div>
+              <h3 className="text-[19px] font-semibold mt-4 tracking-[-0.02em]">{c.title}</h3>
+              <p className="text-[13.5px] text-muted mt-2.5 leading-relaxed">{c.body}</p>
+
+              <div className="flex flex-wrap gap-1.5 mt-5">
+                {c.steps.map((s) => <span key={s} className="chip">{s}</span>)}
+              </div>
+
+              <Link href={c.href} className="btn btn-ghost mt-6 self-start !px-0 !text-accent hover:!bg-transparent">
+                {c.cta} <ArrowRight size={14} />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Skill chain */}
+      <section className="px-6 md:px-12 py-14 border-t border-line-soft">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
+          <div>
+            <p className="label mb-2">Skill-to-employment</p>
+            <h2 className="text-[22px] md:text-[26px] font-semibold tracking-[-0.025em]">
+              Every link has a conversion rate. The weakest one caps the chain.
+            </h2>
+          </div>
+          <Link href="/skills" className="btn"><GraduationCap size={14} /> Open Skill Intelligence</Link>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {CHAIN.map((s, i) => (
+            <motion.div
+              key={s}
+              initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ delay: i * 0.06, ease }}
+              className="flex-1 min-w-[122px] rounded-[13px] border border-line-soft bg-surface px-3.5 py-4 relative overflow-hidden group hover:border-line transition-colors"
+            >
+              <span className="absolute inset-x-0 bottom-0 h-[2px]"
+                style={{ background: i === 1 ? "var(--color-danger)" : i >= 5 ? "var(--color-ok)" : "var(--color-accent)", opacity: 0.65 }} />
+              <p className="text-[9.5px] tracking-[0.1em] text-faint group-hover:text-muted transition-colors">{s}</p>
+              <p className="text-[11px] text-[#2b3238] mt-2 tabular-nums">{String(i + 1).padStart(2, "0")}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Capabilities */}
+      <section className="px-6 md:px-12 py-14 border-t border-line-soft">
+        <p className="label mb-2">What it does</p>
+        <h2 className="text-[22px] md:text-[26px] font-semibold tracking-[-0.025em] mb-7 max-w-2xl">
+          Six surfaces, one spine. Analysis that does not become owned work is decoration.
+        </h2>
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {CAPABILITIES.map((c, i) => {
+            const Icon = c.icon;
+            return (
+              <motion.div
+                key={c.title}
+                initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.45, delay: (i % 3) * 0.07, ease }}
+              >
+                <Link href={c.href} className="card card-hover p-5 block h-full group">
+                  <div className="flex items-start justify-between">
+                    <div className="grid place-items-center w-9 h-9 rounded-[11px] border border-line bg-surface-2">
+                      <Icon size={16} className="text-accent" />
+                    </div>
+                    <ArrowRight size={14} className="text-[#2b3238] group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                  <h3 className="text-[14.5px] font-medium mt-4">{c.title}</h3>
+                  <p className="text-[12.5px] text-muted mt-1.5 leading-relaxed">{c.body}</p>
+                  <span className="chip mt-4">{c.tag}</span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Architecture */}
+      <section className="px-6 md:px-12 py-14 border-t border-line-soft">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <p className="label mb-2">How it is built</p>
+            <h2 className="text-[22px] md:text-[26px] font-semibold tracking-[-0.025em] leading-tight">
+              Retrieval proposes.<br />Rules dispose.<br />
+              <span className="text-faint">Reasoning explains.</span>
+            </h2>
+            <p className="text-[13px] text-muted mt-4 leading-relaxed">
+              The LLM is deliberately not trusted with the score. That is what makes a match defensible
+              instead of merely impressive.
+            </p>
+            <Link href="/responsible-ai" className="btn mt-6"><ScrollText size={14} /> Responsible AI</Link>
+          </div>
+
+          <div className="lg:col-span-2 space-y-2.5">
+            {ARCHITECTURE.map((a, i) => {
+              const Icon = a.icon;
+              return (
+                <motion.div
+                  key={a.k}
+                  initial={{ opacity: 0, x: 12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.09, ease }}
+                  className="card p-5 flex items-start gap-4"
+                >
+                  <div className="grid place-items-center w-9 h-9 rounded-[11px] border border-line bg-surface-2 shrink-0">
+                    <Icon size={16} className="text-teal" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-medium">{a.k}</p>
+                    <p className="text-[12.5px] text-muted mt-1 leading-relaxed">{a.v}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+            <div className="flex flex-wrap gap-1.5 pt-1.5">
+              {["Next.js", "TypeScript", "Gemini", "Embeddings + RAG", "VectorStore interface", "Zod-validated JSON", "Human-in-the-loop"].map((t) => (
+                <span key={t} className="chip">{t}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Close */}
+      <section className="px-6 md:px-12 py-16 border-t border-line-soft">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 0.5, ease }}
+          className="card p-8 md:p-10 relative overflow-hidden"
+        >
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(560px 260px at 88% 10%, rgba(79,195,174,0.09), transparent 62%)" }} />
+          <div className="relative flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-xl">
+              <Layers size={18} className="text-accent mb-4" />
+              <h2 className="text-[22px] md:text-[27px] font-semibold tracking-[-0.025em] leading-tight">
+                An intelligence layer for workforce operations and executive decision-making.
+              </h2>
+              <p className="text-[13px] text-muted mt-3.5 leading-relaxed">
+                All candidates, clients, markets and metrics in this prototype are fictional and labelled
+                <span className="text-fg"> Illustrative prototype data</span>. AI assists recruiter and leadership
+                judgement; humans make the decisions.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              <Link href="/command-center" className="btn btn-primary !px-4 !py-2.5 !text-[13.5px]">
+                Enter Command Center <ArrowRight size={15} />
+              </Link>
+              <Link href="/skills" className="btn !px-4 !py-2.5 !text-[13.5px]">Skill Intelligence</Link>
+            </div>
+          </div>
+        </motion.div>
+      </section>
     </div>
   );
 }

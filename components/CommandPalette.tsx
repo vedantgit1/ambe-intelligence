@@ -13,10 +13,11 @@ export function CommandPalette({ open, onClose, onCopilot }: { open: boolean; on
   const [i, setI] = useState(0);
 
   const commands: Cmd[] = useMemo(() => [
-    { label: "Go to Command Center", hint: "Dashboard", run: () => router.push("/") },
+    { label: "Go to Overview", hint: "Landing", run: () => router.push("/") },
+    { label: "Go to Command Center", hint: "Dashboard", run: () => router.push("/command-center") },
     { label: "Find Candidates", hint: "Talent Match", run: () => router.push("/talent") },
     { label: "Analyze Requirement", hint: "Talent Match", run: () => router.push("/talent?run=analyze") },
-    { label: "Generate Executive Brief", hint: "Command Center", run: () => router.push("/?run=brief") },
+    { label: "Generate Executive Brief", hint: "Command Center", run: () => router.push("/command-center?run=brief") },
     { label: "View Strategy", hint: "Strategy Room", run: () => router.push("/strategy") },
     { label: "View Skill Intelligence", hint: "Skill-to-Opportunity", run: () => router.push("/skills") },
     { label: "View Analytics", hint: "Recruitment funnel", run: () => router.push("/analytics") },

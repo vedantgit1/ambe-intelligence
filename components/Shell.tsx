@@ -6,14 +6,15 @@ import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity, BarChart3, Bell, Bot, ChevronLeft, CircleDot, ClipboardCheck,
-  Compass, GitBranch, Globe2, GraduationCap, LayoutDashboard, Search,
+  Compass, GitBranch, Globe2, GraduationCap, Home, LayoutDashboard, Search,
   Shield, Users,
 } from "lucide-react";
 import { Copilot } from "@/components/Copilot";
 import { CommandPalette } from "@/components/CommandPalette";
 
 const NAV = [
-  { href: "/", label: "Command Center", icon: LayoutDashboard },
+  { href: "/", label: "Overview", icon: Home },
+  { href: "/command-center", label: "Command Center", icon: LayoutDashboard },
   { href: "/talent", label: "Talent Match", icon: Users },
   { href: "/skills", label: "Skill Intelligence", icon: GraduationCap },
   { href: "/strategy", label: "Strategy Room", icon: Compass },
